@@ -9,153 +9,192 @@
 </head>
 <body>
 
-<div class="main">
-    <div class="left">
-        <div class="stat-box">
-            <div class="stat-grid">
-                <div class="stat-item">
-                    <div class="stat-label">click:</div>
-                    <span class="stat-value clicks-cost">0</span>
+    <div class="main">
+        <div class="left">
+            <div class="stat-box">
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">click:</div>
+                        <span class="stat-value clicks-cost">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">rebirth:</div>
+                        <span class="stat-value" id="rebirth-display">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">ascension:</div>
+                        <span class="stat-value" id="ascension-display" style="color:#f59e0b;">0</span>
+                    </div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-label">rebirth:</div>
-                    <span class="stat-value" id="rebirth-display">0</span>
+            </div>
+            <p class="cps-label">
+                current cps: <span id="cps">0</span>
+            </p>
+            <button class="click-btn" id="clicks" onclick="increaseClicks()">
+                <img src="./assets/clicks.png" alt="" class="clicks-image">
+            </button>
+
+            <div class="nav-container">
+                <button class="nav-btn active" id="tab-shop" onclick="openTab('shop')" style="font-family: sans-serif;">
+                    🖱️ clicks shop
+                </button>
+                <button class="nav-btn" id="tab-auto" onclick="openTab('auto')" style="font-family: sans-serif;">
+                    ♻️ rebirth shop
+                </button>
+
+                <button class="nav-btn" id="tab-ascension" onclick="openTab('ascension')" style="font-family: sans-serif;">
+                    🌟 ascension
+                </button>
+
+                 <button class="nav-btn" id="tab-achievements" onclick="openTab('achievements')" style="font-family: sans-serif;">
+                    🏆 achievements
+                </button>
+
+                <button class="nav-btn" id="tab-multiplier" onclick="openTab('multiplier')" style="font-family: sans-serif;">
+                    ✨ multiplier
+                </button>
+               
+                <button class="nav-btn" id="tab-settings" onclick="openTab('settings'); renderSettingsPanel();" style="font-family: sans-serif;">
+                    ⚙️ settings
+                </button>
+            </div>
+            
+
+            <div class="multiplier-container">
+                <div class="multiplier-bar">
+                    <button class="mult-btn active" onclick="setMultiplier(1)">1x</button>
+                    <button class="mult-btn" onclick="setMultiplier(10)">10x</button>
+                    <button class="mult-btn" onclick="setMultiplier(25)">25x</button>
+                    <button class="mult-btn" onclick="setMultiplier(50)">50x</button>
+                    <button class="mult-btn" onclick="setMultiplier(100)">100x</button>
+                    <button class="mult-btn" onclick="setMultiplier('max')">max</button>
                 </div>
             </div>
-        </div>
 
-        <p class="cps-label">
-            current cps: <span id="cps">0</span>
-        </p>
-
-        <button class="click-btn" id="clicks" onclick="increaseClicks()">
-            <img src="./assets/clicks.png" alt="" class="clicks-image">
-        </button>
-
-        <div class="nav-container">
-            <button class="nav-btn active" id="tab-shop" onclick="openTab('shop')" style="font-family: sans-serif;">
-                🖱️ clicks shop
-            </button>
-            <button class="nav-btn" id="tab-auto" onclick="openTab('auto')" style="font-family: sans-serif;">
-                ♻️ rebirth shop
-            </button>
-            <button class="nav-btn" id="tab-achievements" onclick="openTab('achievements')" style="font-family: sans-serif;">
-                🏆 achievements
-            </button>
-            <button class="nav-btn" id="tab-multiplier" onclick="openTab('multiplier')" style="font-family: sans-serif;">
-                ✨ multiplier
-            </button>
-            <button class="nav-btn" id="tab-settings" onclick="openTab('settings'); renderSettingsPanel();" style="font-family: sans-serif;">
-                ⚙️ settings
-            </button>
-        </div>
-
-        <div class="multiplier-container">
-            <div class="multiplier-bar">
-                <button class="mult-btn active" onclick="setMultiplier(1)">1x</button>
-                <button class="mult-btn" onclick="setMultiplier(10)">10x</button>
-                <button class="mult-btn" onclick="setMultiplier(25)">25x</button>
-                <button class="mult-btn" onclick="setMultiplier(50)">50x</button>
-                <button class="mult-btn" onclick="setMultiplier(100)">100x</button>
-                <button class="mult-btn" onclick="setMultiplier('max')">max</button>
+            <!-- Shop Panel -->
+            <div class="shop-panel" id="panel-shop">
+                <div id="shop-items" class="tier-grid"></div>
             </div>
-        </div>
 
-        <!-- Panels -->
-        <div class="shop-panel" id="panel-shop">
-            <div id="shop-items" class="tier-grid"></div>
-        </div>
-        <div class="shop-panel hidden" id="panel-auto">
-            <div id="rebirth-items"></div>
-        </div>
-        <div class="shop-panel hidden" id="panel-achievements">
-            <div id="achievements-container" class="ach-grid"></div>
-        </div>
-        <div class="shop-panel hidden" id="panel-multiplier">
-            <div id="mult-minigame"></div>
-        </div>
-        <div class="shop-panel hidden" id="panel-settings">
-            <div class="settings-section">
-                <p class="settings-label">danger zone</p>
-                <button onclick="resetGame()" class="reset-btn settings-reset-btn">🗑️ reset save</button>
+            <!-- Rebirth Panel -->
+            <div class="shop-panel hidden" id="panel-auto">
+                <div id="rebirth-items"></div>
             </div>
-            <div id="account-panel" style="margin-top: 12px;"></div>
-        </div>
 
-        <!-- Footer with countdown -->
-        <div class="version-footer">
-            <a href="changelog.html" class="version-btn" style="font-family: sans-serif;">🏷️ version 0.3.0</a>
-            <a href="leaderboard.html" class="version-btn" style="font-family: sans-serif;">🏆 leaderboard</a>
-            <span class="version-btn" id="update-countdown" style="font-family: sans-serif; cursor: default;">
-                ⏳ loading...
-            </span>
+            <!-- Achievements Panel -->
+            <div class="shop-panel hidden" id="panel-achievements">
+                <div id="achievements-container" class="ach-grid"></div>
+            </div>
+
+            <!-- Multiplier Panel -->
+            <div class="shop-panel hidden" id="panel-multiplier">
+                <div id="mult-minigame"></div>
+            </div>
+
+            <!-- Ascension Panel -->
+            <div class="shop-panel hidden" id="panel-ascension">
+                <div id="ascension-items"></div>
+            </div>
+
+            <!-- Settings Panel -->
+            <div class="shop-panel hidden" id="panel-settings">
+                <div class="settings-section">
+                    <p class="settings-label">danger zone</p>
+                    <button onclick="resetGame()" class="reset-btn settings-reset-btn">🗑️ reset save</button>
+                </div>
+                <div id="account-panel" style="margin-top: 12px;"></div>
+            </div>
+
+            <div class="version-footer">
+                <a href="changelog.html" class="version-btn" style="font-family: sans-serif;">🏷️ version 0.4.0</a>
+                <a href="leaderboard.html" class="version-btn" style="font-family: sans-serif;">🏆 leaderboard</a>
+            </div>
         </div>
     </div>
-</div>
 
-<script src="index.js"></script>
-<script src="localstorage.js"></script>
-<script src="rebirth.js"></script>
-<script src="achievements.js"></script>
-<script src="multiplier.js"></script>
-<script src="account.js"></script>
+    <!--
+        LOAD ORDER (critical):
+        1. index.js      — defines game variables & core functions
+        2. rebirth.js    — rebirth logic
+        3. achievements.js
+        4. multiplier.js
+        5. ascension.js
+        6. supabase CDN  — must exist before account.js
+        7. account.js    — sets window._accountReady = true when done
+        8. localstorage.js — autosave interval starts here; guard relies on _accountReady
+    -->
+    <script src="index.js"></script>
+    <script src="rebirth.js"></script>
+    <script src="achievements.js"></script>
+    <script src="multiplier.js"></script>
+    <script src="ascension.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="account.js"></script>
+    <script src="localstorage.js"></script>
 
-<script>
-    // Load save, then init
-    loadGame();
-    updateCps();
-    renderShop();
-    renderRebirthShop();
-    renderAchievements();
-    renderMultMinigame();
-    renderSettingsPanel();
-    updateDisplay();
+    <script>
+        // Render basic UI with default state so the page isn't blank.
+        // account.js's initAccount() will update once data is loaded.
+        updateCps();
+        updateDisplay();
 
-    function openTab(tab) {
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.shop-panel').forEach(p => p.classList.add('hidden'));
-        document.getElementById('tab-' + tab).classList.add('active');
-        document.getElementById('panel-' + tab).classList.remove('hidden');
-    }
-
-    // Countdown only in footer
-    (function updateCountdown() {
-        const elFooter = document.getElementById('update-countdown');
-        if (!elFooter) return;
-
-        let target = new Date('2026-04-09T00:00:00');
-
-        function tick() {
-            const now = new Date();
-            let diff = target - now;
-
-            // Roll over to next week if passed
-            if (diff <= 0) {
-                target.setDate(target.getDate() + 7);
-                diff = target - now;
+        // Once initAccount() finishes (async), render all panels with real save data.
+        (function waitForAccount() {
+            if (window._accountReady) {
+                updateCps();
+                updateDisplay();
+                renderShop();
+                renderRebirthShop();
+                renderAchievements();
+                renderMultMinigame();
+                renderAscensionShop();
+                renderSettingsPanel();
+                return;
             }
+            setTimeout(waitForAccount, 50);
+        })();
 
-            const days  = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const mins  = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const secs  = Math.floor((diff % (1000 * 60)) / 1000);
-
-            elFooter.textContent = days > 0 
-                ? `⏳ next update in: ${days}d ${hours}h ${mins}m` 
-                : `⏳ next update in: ${hours}h ${mins}m ${secs}s`;
-
-            requestAnimationFrame(tick);
+        function openTab(tab) {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.shop-panel').forEach(p => p.classList.add('hidden'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('panel-' + tab).classList.remove('hidden');
         }
 
-        tick();
-    })();
-</script>
+        // ── Update countdown ──────────────────────────────────────────────
+        (function updateCountdown() {
+            const banner = document.getElementById('update-banner');
+            if (!banner) return;
 
+            const TARGET = new Date('2025-04-09T00:00:00');
+
+            function tick() {
+                const now = new Date();
+                const diff = TARGET - now;
+
+                if (diff <= 0) {
+                    banner.innerHTML = '🎉 <b>update dropping now!</b> refresh to see what\'s new';
+                    banner.classList.add('update-banner-live');
+                    return;
+                }
+
+                const days    = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours   = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const minutes = Math.floor((diff / (1000 * 60)) % 60);
+                const seconds = Math.floor((diff / 1000) % 60);
+
+                const parts = [];
+                if (days > 0)    parts.push(`${days}d`);
+                if (hours > 0)   parts.push(`${hours}h`);
+                if (minutes > 0) parts.push(`${minutes}m`);
+                parts.push(`${seconds}s`);
+
+                banner.innerHTML = `🚀 <b>next update</b> in: <span class="update-countdown">${parts.join(' ')}</span>`;
+                setTimeout(tick, 1000);
+            }
+
+            tick();
+        })();
+    </script>
 </body>
 </html>
-
-
-<!--
-© 2026 YourName. All Rights Reserved.
-Do not copy, reuse, or redistribute without permission.
--->

@@ -36,13 +36,15 @@ function setMultiplier(val) {
 
 // calculates total cost for multiple purchases based on exponential scaling
 function getPurchaseInfo(item, amount) {
+  const discount = (typeof getAscensionShopDiscount === 'function') ? getAscensionShopDiscount() : 0;
+  const discountMult = 1 - discount;
   let totalCost = 0;
   let itemsToBuy = 0;
   let tempCount = item.count;
 
   if (amount === 'max') {
     while (true) {
-      let nextCost = Math.floor(item.baseCost * Math.pow(1.15, tempCount + itemsToBuy));
+      let nextCost = Math.max(1, Math.floor(item.baseCost * Math.pow(1.15, tempCount + itemsToBuy) * discountMult));
       if (totalCost + nextCost <= clickCount) {
         totalCost += nextCost;
         itemsToBuy++;
@@ -53,7 +55,7 @@ function getPurchaseInfo(item, amount) {
   } else {
     itemsToBuy = amount;
     for (let i = 0; i < amount; i++) {
-      totalCost += Math.floor(item.baseCost * Math.pow(1.15, tempCount + i));
+      totalCost += Math.max(1, Math.floor(item.baseCost * Math.pow(1.15, tempCount + i) * discountMult));
     }
   }
 
@@ -61,6 +63,8 @@ function getPurchaseInfo(item, amount) {
 }
 
 function formatNum(n) {
+  if (isNaN(n) || !isFinite(n)) return isNaN(n) ? '???' : '∞';
+  if (n < 0) return '-' + formatNum(-n);
   if (n >= 1e63) return (n / 1e63).toFixed(2) + 'Vi';
   if (n >= 1e60) return (n / 1e60).toFixed(2) + 'NoDe';
   if (n >= 1e57) return (n / 1e57).toFixed(2) + 'OcDe';
@@ -73,7 +77,7 @@ function formatNum(n) {
   if (n >= 1e36) return (n / 1e36).toFixed(2) + 'UnDe';
   if (n >= 1e33) return (n / 1e33).toFixed(2) + 'De';
   if (n >= 1e30) return (n / 1e30).toFixed(2) + 'No';
-  if (n >= 1e27) return (n / 1e27).toFixed(2) + 'Oc'; 
+  if (n >= 1e27) return (n / 1e27).toFixed(2) + 'Oc';
   if (n >= 1e24) return (n / 1e24).toFixed(2) + 'Sp';
   if (n >= 1e21) return (n / 1e21).toFixed(2) + 'Sx';
   if (n >= 1e18) return (n / 1e18).toFixed(2) + 'Qi';
@@ -98,8 +102,10 @@ function updateCps() {
 
 function updateDisplay() {
   clicksDisplay.textContent = formatNum(Math.floor(clickCount));
-  if (rebirthDisplay) rebirthDisplay.textContent = rebirthCount;
+  if (rebirthDisplay) rebirthDisplay.textContent = formatNum(rebirthCount);
   cpsDisplay.textContent = formatNum(cps);
+  const ascDisplay = document.getElementById('ascension-display');
+  if (ascDisplay) ascDisplay.textContent = typeof ascensionCount !== 'undefined' ? formatNum(ascensionCount) : '0';
 
   shopItems.forEach(item => {
     const card = document.querySelector(`.tier-card[data-id="${item.id}"]`);
@@ -117,7 +123,12 @@ function updateDisplay() {
     buyBtn.textContent = label;
 
     // show the total cost for the stack
-    card.querySelector('.tier-stats').textContent = `+${formatNum(item.cps * (purchase.count || 1))} cps | ${formatNum(purchase.cost)}`;
+    // always show the real single-item cost when can't afford the full stack
+    const displayCost = purchase.count > 0
+      ? purchase.cost
+      : Math.max(1, Math.floor(item.baseCost * Math.pow(1.15, item.count) * (1 - ((typeof getAscensionShopDiscount === 'function') ? getAscensionShopDiscount() : 0))));
+    const displayCps  = item.cps * (purchase.count || 1);
+    card.querySelector('.tier-stats').textContent = `+${formatNum(displayCps)} cps | ${formatNum(displayCost)}`;
     
     const ownedEl = card.querySelector('.tier-owned');
     ownedEl.textContent = `owned: ${item.count}`;
@@ -162,14 +173,20 @@ function buyItem(id) {
   
   updateCps();
   updateDisplay();
+  if (typeof saveGame === 'function') saveGame();
 }
 
 function increaseClicks() {
   const achBonus  = (typeof achievementClickBonus !== 'undefined') ? achievementClickBonus : 0;
   const multBonus = (typeof getEffectiveMultiplier === 'function') ? getEffectiveMultiplier() : 1;
-  const effective = clickPower * (1 + achBonus) * multBonus;
-  clickCount += effective;
-  totalClicksEver += effective;
+  const ascBonus  = (typeof getAscensionClickMult === 'function') ? getAscensionClickMult() : 1;
+  const rbClickMult = (typeof rebirthUpgrades !== 'undefined' && rebirthUpgrades.clickPowerRB)
+    ? rebirthUpgrades.clickPowerRB.getMultiplier() : 1;
+  const stormBonus = (typeof rebirthUpgrades !== 'undefined' && rebirthUpgrades.clickStorm)
+    ? cps * rebirthUpgrades.clickStorm.getClickCpsBonus() : 0;
+  const effective = clickPower * (1 + achBonus) * multBonus * ascBonus * rbClickMult;
+  clickCount += effective + stormBonus;
+  totalClicksEver += effective + stormBonus;
   manualClickCount++;
 
   // gain multiplier currency on every manual click
@@ -177,6 +194,7 @@ function increaseClicks() {
 
   updateDisplay();
   if (typeof renderMultMinigame === 'function') renderMultMinigame();
+  if (typeof saveGame === 'function') saveGame();
 
   const btn = document.getElementById('clicks');
   btn.classList.remove('pop');
@@ -185,8 +203,9 @@ function increaseClicks() {
 }
 
 setInterval(() => {
-  if (cps > 0) {
-    clickCount += cps / 20;
+  if (cps > 0 && isFinite(cps)) {
+    const gain = cps / 20;
+    if (isFinite(gain)) clickCount += gain;
     updateDisplay();
   }
 }, 50);
@@ -197,17 +216,23 @@ let lastTime = Date.now();
 
 function updateCpsRealTime() {
   const now = Date.now();
-  const delta = now - lastTime; // ms since last update
+  const delta = Math.min(now - lastTime, 5000); // cap delta to 5s to avoid huge catch-up spikes
   lastTime = now;
 
-  if (cps > 0) {
+  if (cps > 0 && isFinite(cps)) {
     const gain = cps * (delta / 1000);
-    clickCount += gain;
-    totalClicksEver += gain;
+    if (isFinite(gain)) {
+      clickCount += gain;
+      totalClicksEver += gain;
+    }
     updateDisplay();
   }
 
-  requestAnimationFrame(updateCpsRealTime); // keeps running
+  // safety net — if clickCount somehow overflows, cap it instead of zeroing
+  if (isNaN(clickCount)) clickCount = 0;
+  else if (!isFinite(clickCount)) clickCount = Number.MAX_VALUE;
+
+  requestAnimationFrame(updateCpsRealTime);
 }
 
 updateCpsRealTime();
@@ -226,3 +251,9 @@ function setmultiplier(val) {
 }
 
 // ── achievements ───────────────────────────────────────────────────────────
+
+/* nightstarv clicker
+
+© 2026 YourName. All Rights Reserved.
+
+This project is public to play, but the code may not be copied or reused without permission. */

@@ -35,10 +35,10 @@ const tiers = [
     { id: 't2', power: 3, cost: 150 },
     { id: 't3', power: 10, cost: 500 },
     { id: 't4', power: 50, cost: 2500 },
-    { id: 't5', power: 500, cost: 25000 }, // fixed the power here bro!
+    { id: 't5', power: 500, cost: 25000 },
     { id: 't6', power: 1000, cost: 50000 },
     { id: 't7', power: 2000, cost: 100000 },
-    { id: 't8', power: 10000, cost: 500000 }, // fixed the power here bro!
+    { id: 't8', power: 10000, cost: 500000 },
     { id: 't9', power: 25000, cost: 1250000 },
     { id: 't10', power: 50000, cost: 2500000 }
 ];

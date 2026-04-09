@@ -220,6 +220,163 @@ const achievements = [
     check: () => shopItems.every(i => i.count >= 5),
     onUnlock: () => { achievementRebirthBonus += 0.50; }
   },
+
+  // ── Ascension achievements ─────────────────────────────────────────────────
+  {
+    id: 'ascension_1',
+    name: 'transcended',
+    desc: 'ascend for the first time',
+    bonus: '+10% cps',
+    unlocked: false,
+    check: () => typeof ascensionCount !== 'undefined' && ascensionCount >= 1,
+    onUnlock: () => { achievementCpsBonus += 0.10; }
+  },
+  {
+    id: 'ascension_5',
+    name: 'beyond rebirth',
+    desc: 'ascend 5 times',
+    bonus: '+10% cps',
+    unlocked: false,
+    check: () => typeof ascensionCount !== 'undefined' && ascensionCount >= 5,
+    onUnlock: () => { achievementCpsBonus += 0.10; }
+  },
+  {
+    id: 'ascension_10',
+    name: 'infinite loop',
+    desc: 'ascend 10 times',
+    bonus: '+25% cps',
+    unlocked: false,
+    check: () => typeof ascensionCount !== 'undefined' && ascensionCount >= 10,
+    onUnlock: () => { achievementCpsBonus += 0.25; }
+  },
+  {
+    id: 'ascension_shards_10',
+    name: 'shard collector',
+    desc: 'accumulate 10 ascension shards',
+    bonus: '+10% click power',
+    unlocked: false,
+    check: () => typeof ascensionShards !== 'undefined' && ascensionShards >= 10,
+    onUnlock: () => { achievementClickBonus += 0.10; }
+  },
+  {
+    id: 'ascension_maxed_upg',
+    name: 'ascendant',
+    desc: 'max out any ascension upgrade',
+    bonus: '+15% cps',
+    unlocked: false,
+    check: () => typeof ascensionUpgrades !== 'undefined' && Object.values(ascensionUpgrades).some(u => u.level >= u.maxLevel),
+    onUnlock: () => { achievementCpsBonus += 0.15; }
+  },
+
+  // ── Challenge achievements ─────────────────────────────────────────────────
+  {
+    id: 'challenge_2m_no_upgrades',
+    name: 'pure clicker',
+    desc: 'reach 2,000,000 clicks with no rebirth upgrades bought',
+    bonus: '+50% click power',
+    unlocked: false,
+    check: () => clickCount >= 2_000_000 &&
+      Object.values(rebirthUpgrades).every(u => u.level === 0),
+    onUnlock: () => { achievementClickBonus += 0.50; }
+  },
+  {
+    id: 'challenge_all_t100',
+    name: 'century collector',
+    desc: 'own 100 of every tier in the clicks shop',
+    bonus: '+50% cps & +50% click power',
+    unlocked: false,
+    check: () => shopItems.every(i => i.count >= 100),
+    onUnlock: () => { achievementCpsBonus += 0.50; achievementClickBonus += 0.50; }
+  },
+
+  // ── More click milestones ──────────────────────────────────────────────────
+  {
+    id: 'clicks_1t',
+    name: 'trillionaire',
+    desc: 'reach 1,000,000,000,000 total clicks',
+    bonus: '+5% cps',
+    unlocked: false,
+    check: () => totalClicksEver >= 1_000_000_000_000,
+    onUnlock: () => { achievementCpsBonus += 0.05; }
+  },
+  {
+    id: 'clicks_manual_10k',
+    name: 'repetitive strain',
+    desc: 'manually click 10,000 times',
+    bonus: '+5% click power',
+    unlocked: false,
+    check: () => manualClickCount >= 10_000,
+    onUnlock: () => { achievementClickBonus += 0.05; }
+  },
+
+  // ── More CPS milestones ────────────────────────────────────────────────────
+  {
+    id: 'cps_1b',
+    name: 'click empire',
+    desc: 'reach 1,000,000,000 cps',
+    bonus: '+5% cps',
+    unlocked: false,
+    check: () => cps >= 1_000_000_000,
+    onUnlock: () => { achievementCpsBonus += 0.05; }
+  },
+  {
+    id: 'cps_1t',
+    name: 'god of automation',
+    desc: 'reach 1,000,000,000,000 cps',
+    bonus: '+5% cps',
+    unlocked: false,
+    check: () => cps >= 1_000_000_000_000,
+    onUnlock: () => { achievementCpsBonus += 0.05; }
+  },
+
+  // ── More rebirth milestones ────────────────────────────────────────────────
+  {
+    id: 'rebirth_1k',
+    name: 'thousand lives',
+    desc: 'reach 1,000 total rebirths',
+    bonus: '+5% cps',
+    unlocked: false,
+    check: () => rebirthCount >= 1_000,
+    onUnlock: () => { achievementCpsBonus += 0.05; }
+  },
+  {
+    id: 'rebirth_1m',
+    name: 'reborn a million times',
+    desc: 'reach 1,000,000 total rebirths',
+    bonus: '+5% cps',
+    unlocked: false,
+    check: () => rebirthCount >= 1_000_000,
+    onUnlock: () => { achievementCpsBonus += 0.05; }
+  },
+  {
+    id: 'rebirth_1b',
+    name: 'one with the loop',
+    desc: 'reach 1,000,000,000 total rebirths',
+    bonus: '+10% cps',
+    unlocked: false,
+    check: () => rebirthCount >= 1_000_000_000,
+    onUnlock: () => { achievementCpsBonus += 0.10; }
+  },
+
+  // ── Shop depth milestones ──────────────────────────────────────────────────
+  {
+    id: 'shop_t12_50',
+    name: 'tier 12 addict',
+    desc: 'own 50 tier 12 items',
+    bonus: '+5% cps',
+    unlocked: false,
+    check: () => shopItems[11].count >= 50,
+    onUnlock: () => { achievementCpsBonus += 0.05; }
+  },
+  {
+    id: 'shop_all_50',
+    name: 'hoarder',
+    desc: 'own at least 50 of every shop item',
+    bonus: '+5% cps',
+    unlocked: false,
+    check: () => shopItems.every(i => i.count >= 50),
+    onUnlock: () => { achievementCpsBonus += 0.05; }
+  },
 ];
 
 // ── Bonus accumulators (applied in updateCps / increaseClicks) ────────────────

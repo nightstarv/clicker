@@ -182,6 +182,7 @@
       <div class="lb-tabs">
         <button class="lb-tab active" onclick="switchTab('clicks')">💰 most clicks</button>
         <button class="lb-tab" onclick="switchTab('rebirths')">♻️ most rebirths</button>
+        <button class="lb-tab" onclick="switchTab('ascensions')">🌟 most ascensions</button>
       </div>
 
       <button class="lb-refresh" onclick="loadLeaderboard()">🔄 refresh</button>
@@ -225,7 +226,11 @@
     function switchTab(tab) {
       currentTab = tab;
       document.querySelectorAll('.lb-tab').forEach((b, i) => {
-        b.classList.toggle('active', (i === 0 && tab === 'clicks') || (i === 1 && tab === 'rebirths'));
+        b.classList.toggle('active',
+          (i === 0 && tab === 'clicks') ||
+          (i === 1 && tab === 'rebirths') ||
+          (i === 2 && tab === 'ascensions')
+        );
       });
       loadLeaderboard();
     }
@@ -233,8 +238,8 @@
     async function loadLeaderboard() {
       document.getElementById('lb-content').innerHTML = '<div class="lb-loading">loading...</div>';
 
-      const col = currentTab === 'clicks' ? 'clicks' : 'rebirths';
-      const url = `${SB_URL}/rest/v1/players?select=username,clicks,rebirths&order=${col}.desc&limit=50`;
+      const col = currentTab === 'clicks' ? 'clicks' : currentTab === 'rebirths' ? 'rebirths' : 'ascensions';
+      const url = `${SB_URL}/rest/v1/players?select=username,clicks,rebirths,ascensions&order=${col}.desc.nullslast&limit=50`;
 
       try {
         const res = await fetch(url, {
@@ -247,7 +252,7 @@
           return;
         }
 
-        const colLabel = col === 'clicks' ? 'clicks' : 'rebirths';
+        const colLabel = col === 'clicks' ? 'clicks' : col === 'rebirths' ? 'rebirths' : 'ascensions';
 
         const html = `
           <table class="lb-table">
@@ -262,7 +267,9 @@
               ${rows.map((row, i) => {
                 const rank = rankLabel(i);
                 const isYou = currentUser && row.username === currentUser.username;
-                const val = col === 'clicks' ? formatNum(row.clicks) : row.rebirths;
+                const val = col === 'clicks' ? formatNum(row.clicks)
+                          : col === 'rebirths' ? formatNum(row.rebirths)
+                          : (row.ascensions != null ? row.ascensions : '—');
                 return `
                   <tr class="lb-row ${isYou ? 'lb-you-row' : ''}">
                     <td class="lb-rank ${rank.cls}">${rank.text}</td>

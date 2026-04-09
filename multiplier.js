@@ -165,6 +165,7 @@ function buyMultUpgrade(id) {
 
   renderMultMinigame();
   updateDisplay(); // refresh click power display
+  if (typeof saveGame === 'function') saveGame();
 }
 
 // ── Format multiplier nicely ──────────────────────────────────────────────────
